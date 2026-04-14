@@ -7,6 +7,18 @@ app = FastAPI()
 requests_counter = Counter("requests_total", "Total de Requests", ["method", "endpoint"])
 request_latency = Histogram("request_duration_seconds", "HTTP request latency",["method", "endpoint"] )
 
+
+def measure_time(method_request:str, endpoint_request:str): 
+
+    start = time.time()
+
+    duration = time.time() - start
+
+    request_latency.labels(
+        method=method_request,
+        endpoint=endpoint_request
+    ).observe(duration)
+
 @app.middleware("http")
 async def count_request(request: Request, call_next):
     response = await call_next(request)
@@ -16,19 +28,7 @@ async def count_request(request: Request, call_next):
         endpoint=request.url.path
     ).inc()
 
-    return response
-
-async def measure_time(request: Request, call_next):
-    start = time.time()
-
-    response = await call_next(request)
-
-    duration = time.time() - start
-
-    request_latency.labels(
-        method=request.method,
-        endpoint=request.url.path
-    ).observe(duration)
+    measure_time(request.method, request.url.path)
 
     return response
 
