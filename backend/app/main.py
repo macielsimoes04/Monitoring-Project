@@ -24,7 +24,7 @@ async def count_request(request: Request, call_next):
     response = await call_next(request)
 
     requests_counter.labels(
-        method=request.method,
+        method=request.method,1
         endpoint=request.url.path
     ).inc()
 
