@@ -37,5 +37,5 @@ async def count_request(request: Request, call_next):
 async def root():
     for metric in requests_counter.collect():
         for sample in metric.samples:
-            return (sample)
+            return (sample)1
   
